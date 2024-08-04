@@ -1,4 +1,3 @@
-
 import numpy as np
 import scipy.stats as ss
 import matplotlib.pyplot as plt 
@@ -15,7 +14,7 @@ def confidence_region_gauss(beta_hat, sigma_app, ecart_type, size, alpha=0.05):
     ech = [x for x in samples if norme(beta_hat, sigma, x) <= p*ecart_type_sq * ss.chi2.ppf(1 - alpha, p)]
     return np.array(ech)
 
-def confidence_region_t(beta_hat, sigma_app, target, size, alpha=0.5):
+def confidence_region_t(beta_hat, sigma_app, target, size, alpha=0.05):
     p = len(beta_hat)
     sigma = np.linalg.inv(sigma_app)
     samples = ss.multivariate_normal.rvs(cov=sigma, mean=beta_hat, size=size)
