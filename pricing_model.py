@@ -93,7 +93,6 @@ class EuropeanOptionPricing:
         """etude de l'impact des parametres sur le prix de l'option"""
         pass
 
-
 if __name__ == "__main__":
     S0 = 100
     mu = 0.05
@@ -109,3 +108,4 @@ if __name__ == "__main__":
     plt.xlabel("Time (t)")
     plt.ylabel("Stock Price (S_t)")
     plt.show()
+
