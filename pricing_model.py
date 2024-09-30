@@ -1,3 +1,4 @@
+#%%
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as ss
@@ -92,7 +93,7 @@ class EuropeanOptionPricing:
     def grecque_indices(self):
         """etude de l'impact des parametres sur le prix de l'option"""
         pass
-
+#%%
 if __name__ == "__main__":
     S0 = 100
     mu = 0.05
@@ -109,3 +110,5 @@ if __name__ == "__main__":
     plt.ylabel("Stock Price (S_t)")
     plt.show()
 
+
+# %%
