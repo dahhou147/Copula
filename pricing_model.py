@@ -29,14 +29,14 @@ def option_bounds_check(call_price, strike_price, r, maturity, S0):
 class EuropeanOptionPricing:
     def __init__(
         self,
-        S0,
-        strike_price,
-        maturity,
+        S0:float,
+        strike_price: float,
+        maturity : float,
         sigma: float,
         r: np.ndarray,
         dividend: bool,
         ticket: str,
-        N,
+        N: int,
     ):
         self.S0 = S0
         self.strike_price = strike_price
