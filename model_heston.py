@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats as ss
-
+import matplotlib.pyplot as plt
 class HestonModel:
     def __init__(self, mu=0.6, vol_vol=0.2, k=0.6, theta=0.3, N=100, M=100, V_0=0.2, S_0=100, rho=0.2, T=1):
         self.mu = mu
@@ -36,4 +36,5 @@ class HestonModel:
 if __name__=="__main__":
     heston_model = HestonModel()
     V_t, S_t = heston_model.generate_paths()
-
+    plt.plot(S_t)
+    plt.show()
