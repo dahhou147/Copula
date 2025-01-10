@@ -1,4 +1,2 @@
 # Copula
-Calibration of Student and Gaussian Copulas
-
-$r$
+Copula is a library designed to simulate and calibrate pricing models for various options (call, put, barrier, butterfly).
