@@ -44,7 +44,7 @@ class EuropeanOptionPricing:
         self.N = N
         self.M = 500
         self.S = None
-        self.portefeuille = 1000
+        self.portefeuille = 0
 
     def calibrate(self):
         """

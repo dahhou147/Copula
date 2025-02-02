@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import scipy.stats as ss
 import matplotlib.pyplot as plt
@@ -33,8 +34,31 @@ class HestonModel:
         V_t = np.maximum(V_t, 0)
 
         return V_t, S_t
+    
+
+
+    def call_option(self):
+
+        pass
+#%%
 if __name__=="__main__":
     heston_model = HestonModel()
     V_t, S_t = heston_model.generate_paths()
     plt.plot(S_t)
     plt.show()
+# %%
+
+class CalibHeston():
+    def __init__(self,data):
+        self.data = data
+        self.theta = ""
+        self.kappa = ""
+        self.rho = ""
+        self.k = ""
+        pass
+    
+    def mle(self):
+        pass
+    def moment(self):
+        pass
+
