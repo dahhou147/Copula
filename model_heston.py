@@ -2,6 +2,19 @@
 import numpy as np
 import scipy.stats as ss
 import matplotlib.pyplot as plt
+from dataclasses import dataclass
+
+
+ 
+@dataclass
+class parametre:
+    mu :float
+    vol_vol : float
+    theta : float
+    theta :float
+    rho : float
+    k = float
+
 class HestonModel:
     def __init__(self, mu=0.6, vol_vol=0.2, k=0.6, theta=0.3, N=100, M=100, V_0=0.2, S_0=100, rho=0.2, T=1):
         self.mu = mu
@@ -16,7 +29,7 @@ class HestonModel:
         self.T = T
         self.dt = T / N
 
-    def generate_paths(self):
+    def heston_MC(self):
         dw = ss.multivariate_normal.rvs(mean=[0, 0], cov=[[self.dt, self.rho * self.dt], [self.rho * self.dt, self.dt]], size=(self.N-1, self.M))
         dw = np.vstack((np.zeros((1, self.M, 2)), dw))
         dw_0 = dw[:, :, 0]
@@ -34,7 +47,9 @@ class HestonModel:
         V_t = np.maximum(V_t, 0)
 
         return V_t, S_t
-    
+
+    def calibration(self):
+        pass
 
 
     def call_option(self):

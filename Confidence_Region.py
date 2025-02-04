@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import scipy.stats as ss
 import matplotlib.pyplot as plt 
@@ -22,7 +23,7 @@ def confidence_region_t(beta_hat, sigma_app, target, size, alpha=0.05):
     s = np.dot(epsi, epsi) / (size - p)
     ech = [x for x in samples if norme(beta_hat, sigma, x) <= s * p * ss.f.ppf(1 - alpha, p, size - p)]
     return np.array(ech)
-
+#%%
 if __name__ == "__main__":
     beta_hat = [0,1]
     cov = np.array([[1,0.7],[0.7,1]])
@@ -34,3 +35,4 @@ if __name__ == "__main__":
     plt.scatter(result.T[0],result.T[1],label ='confidence region')
     plt.legend()
     plt.show()
+# %%

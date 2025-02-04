@@ -103,12 +103,12 @@ class EuropeanOptionPricing:
             print("Le delta est calculé pour juste les options call et put")
             return None
 
-    def pnl_portefeuille(self,option_type):
+    def pnl_portefeuille(self, option_type):
         delta = self.delta_hedging(option_type)
         if option_type == "call":
-          option = self.price_option_call()
-        else :
-          option = self.price_option_put()
+            option = self.price_option_call()
+        else:
+            option = self.price_option_put()
         cash = self.portefeuille + option[0] - delta[0] * self.S[0]
         portefeuille_final = delta[-1] * self.S[-1] + cash * np.exp(self.r * self.maturity) - option[-1]
         return portefeuille_final - self.portefeuille
@@ -130,3 +130,27 @@ class EuropeanOptionPricing:
     def grecque_indices(self):
         """Les indices grecs : vega, theta, lambda, ect."""
         pass
+
+    def plot_simulation(self):
+        """Plot the simulated paths of the geometric Brownian motion."""
+        if self.S is None:
+            self.GBM()
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.S)
+        plt.title('Simulated Geometric Brownian Motion Paths')
+        plt.xlabel('Time Steps')
+        plt.ylabel('Asset Price')
+        plt.show()
+
+    def plot_option_prices(self):
+        """Plot the call and put option prices over time."""
+        call_prices = self.price_option_call()
+        put_prices = self.price_option_put()
+        plt.figure(figsize=(10, 6))
+        plt.plot(call_prices, label='Call Option Prices')
+        plt.plot(put_prices, label='Put Option Prices')
+        plt.title('Option Prices Over Time')
+        plt.xlabel('Time Steps')
+        plt.ylabel('Option Price')
+        plt.legend()
+        plt.show()
