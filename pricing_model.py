@@ -1,3 +1,4 @@
+#%%
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as ss
@@ -21,18 +22,49 @@ def option_bounds_check(call_price, strike_price, r, maturity, S0):
         return True
     else:
         return False
+    
+def portefeuille(S0, mu, sigma, N, T, M, rf):
+    """
+    Calculate the value of a portfolio consisting of a risk-free asset and a risky asset,
+    adjusting the proportion dynamically based on their values.
+    
+    Parameters:
+    S0 (float): Initial price of the risky asset.
+    mu (float): Expected return of the risky asset.
+    sigma (float): Volatility of the risky asset.
+    N (int): Number of time steps.
+    T (float): Total time period.
+    M (int): Number of simulation paths.
+    rf (float): Risk-free interest rate.
+    
+    Returns:
+    np.ndarray: Portfolio values over time.
+    """
+    t, S = geometric_brownian_motion(S0, mu, sigma, N, T, M)
+    portfolio_value = np.zeros_like(S)
+    x = np.zeros_like(S)
+    
+    for i in range(N):
+        risk_free_asset = np.exp(rf * t[i])
+        risky_asset = S[i] / S0
+        x[i] = (risky_asset > risk_free_asset).astype(float)
+        portfolio_value[i] = x[i] * risk_free_asset + (1 - x[i]) * risky_asset
+    
+    return t, portfolio_value
+
+
 
 class EuropeanOptionPricing:
     def __init__(
-        self,
-        S0: float,
-        strike_price: float,
-        maturity: float,
-        sigma: float,
-        r: float,
-        dividend: bool,
-        ticket: str,
-        N: int,
+        self,  
+        S0: float,  # prix de l'actif sous-jacent
+        strike_price: float,    # prix d'exercice
+        maturity: float,    # maturity
+        sigma: float, # volatility
+        r: float,  # risk-free interest rate
+        dividend: bool, # dividend yield
+        ticket: str,   
+        N: int, # number of time steps
     ):
         self.S0 = S0
         self.strike_price = strike_price
@@ -46,12 +78,14 @@ class EuropeanOptionPricing:
         self.S = None
         self.portefeuille = 0
 
-    def calibrate(self):
+    def calibrate(self, historical_prices):
         """
         Calibrate the model to get the average volatility and the asset's growth rate.
-        This method would typically be implemented with historical data.
+        This method uses historical price data.
         """
-        pass
+        log_returns = np.diff(np.log(historical_prices))
+        self.sigma = np.std(log_returns) * np.sqrt(self.N)
+        self.mu = np.mean(log_returns) * self.N
 
     def predict_volatility(self):
         """
@@ -130,7 +164,6 @@ class EuropeanOptionPricing:
     def grecque_indices(self):
         """Les indices grecs : vega, theta, lambda, ect."""
         pass
-
     def plot_simulation(self):
         """Plot the simulated paths of the geometric Brownian motion."""
         if self.S is None:
@@ -154,3 +187,5 @@ class EuropeanOptionPricing:
         plt.ylabel('Option Price')
         plt.legend()
         plt.show()
+
+# %%
