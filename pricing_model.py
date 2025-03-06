@@ -20,9 +20,9 @@ class EuropeanOptionPricing:
         maturity: float,
         sigma: float,
         r: float,
-        dividend: float = 0.0,  # Changed to continuous dividend yield
-        N: int = 252,  # Default to 1 year with daily steps
-        M: int = 1000  # Number of simulations
+        dividend: float = 0.0,  
+        N: int = 252,  
+        M: int = 1000  
     ):
         self.S0 = S0
         self.K = strike_price
@@ -66,7 +66,7 @@ class EuropeanOptionPricing:
             return (self.price_call() if option_type == 'call' else self.price_put()) - market_price
         
         try:
-            return so.newton(f, 0.2, maxiter=50)  # 0.2 as initial guess
+            return so.newton(f, 0.2, maxiter=50) 
         except RuntimeError:
             return np.nan
 
