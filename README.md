@@ -1,6 +1,6 @@
 # Copula
 Copula is a library designed to simulate and calibrate pricing models for various options (call, put, barrier, butterfly).
-# cash flow portfolio
+### cash flow portfolio
 
 from pricing_model import EuropeanOptionPricing
 import numpy as np
@@ -15,21 +15,21 @@ params = {
     'dividend': 0.0       # Rendement de dividende
 }
 
-# Création de l'objet option
+### Création de l'objet option
 option = EuropeanOptionPricing(**params)
 
-# Calcul du prix de l'option call
+### Calcul du prix de l'option call
 prix_call = option.price_call()
 print(f"Prix de l'option call: {prix_call:.2f}")
 
-# Calculer la volatilité implicite à partir d'un prix de marché
+### Calculer la volatilité implicite à partir d'un prix de marché
 prix_marche = 10.50
 vol_implicite = option.implied_volatility(option.K, prix_marche, 'call')
 print(f"Volatilité implicite: {vol_implicite:.2%}")
 
-# Définir une gamme de prix d'exercice et de prix de marché correspondants
+### Définir une gamme de prix d'exercice et de prix de marché correspondants
 strikes = np.linspace(80, 120, 9)
 market_prices = [/* prix de marché observés */]
 
-# Visualiser le smile de volatilité
+### Visualiser le smile de volatilité
 option.plot_volatility_smile(strikes, market_prices)
