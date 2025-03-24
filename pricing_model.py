@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats as ss
 import scipy.optimize as so
+import matplotlib.pyplot as plt
 
 def geometric_brownian_motion(S0, mu, sigma, N, T, M):
     """Generate geometric Brownian motion paths"""
@@ -8,14 +9,14 @@ def geometric_brownian_motion(S0, mu, sigma, N, T, M):
     t = np.linspace(0, T, N)
     dW = ss.norm.rvs(scale=np.sqrt(dt), size=(N-1, M))
     W = np.cumsum(dW, axis=0)
-    W = np.vstack([np.zeros(M), W])
+    W = np.vstack([np.zeros(M), W]) 
     S = S0 * np.exp((mu - 0.5 * sigma**2) * t[:, None] + sigma * W)
     return t, S
 
 class EuropeanOptionPricing:
     def __init__(
         self,  
-        S0: float,
+        S0: float,     
         strike_price: float,
         maturity: float,
         sigma: float,
@@ -59,10 +60,11 @@ class EuropeanOptionPricing:
             return np.exp(-self.q*self.T) * (ss.norm.cdf(d1) - 1)
         raise ValueError("Invalid option type")
 
-    def implied_volatility(self, market_price: float, option_type: str = 'call'):
+    def implied_volatility(self,strike ,market_price: float, option_type: str = 'call'):
         """Calculate implied volatility using Newton-Raphson method"""
         def f(sigma):
             self.sigma = sigma
+            self.K =strike
             return (self.price_call() if option_type == 'call' else self.price_put()) - market_price
         
         try:
@@ -70,9 +72,9 @@ class EuropeanOptionPricing:
         except RuntimeError:
             return np.nan
 
-    def volatility_smile(self, strikes: np.ndarray, market_prices: np.ndarray, option_type: str = 'call'):
-        """Calculate volatility smile for given strikes and market prices"""
-        return [self.implied_volatility(price, option_type) for price in market_prices]
+    def volatility_smile(self, strikes: np.ndarray, market_prices: np.ndarray, option_type: str = 'call') -> np.ndarray:
+        """Calcule la courbe de volatilité implicite de manière vectorisée"""
+        return np.array([self.implied_volatility(strike, price, option_type) for strike, price in zip(strikes, market_prices)])
 
     def delta_hedge_pnl(self, option_type: str, n_simulations: int = 100):
         """Simulate delta hedging P&L for multiple paths"""
@@ -117,6 +119,17 @@ class EuropeanOptionPricing:
             M=self.M
         )
 
+    def plot_volatility_smile(self, strikes, market_prices, option_type='call'):
+        """Affiche la courbe de volatilité implicite"""
+        smile = self.volatility_smile(strikes, market_prices, option_type)
+        plt.figure(figsize=(10, 6))
+        plt.plot(strikes, smile*100, 'o-')
+        plt.xlabel('Prix d\'exercice')
+        plt.ylabel('Volatilité implicite (%)')
+        plt.title('Smile de volatilité')
+        plt.grid(True)
+        return plt.gcf()
+
 if __name__ == "__main__":
     params = {
         'S0': 100,
@@ -128,14 +141,14 @@ if __name__ == "__main__":
         'N': 252,
         'M': 1000
     }
-    
+
     option = EuropeanOptionPricing(**params)
-    
+
     print(f"Call price: {option.price_call():.2f}")
-    
+
     print(f"Call delta: {option.delta('call'):.2f}")
     market_price = 10.50
-    iv = option.implied_volatility(market_price, 'call')
+    iv = option.implied_volatility(option.K,market_price, 'call')
     print(f"Implied volatility: {iv:.2%}")
     strikes = np.array([90, 100, 110])
     market_prices = np.array([15.0, 10.5, 7.5])
@@ -143,3 +156,6 @@ if __name__ == "__main__":
     print("Volatility smile:", np.round(smile, 4))
     pnls = option.delta_hedge_pnl('call')
     print(f"Delta hedging P&L stats: Mean={pnls.mean():.2f}, Std={pnls.std():.2f}")
+
+    print(option.price_call()) # %%
+
