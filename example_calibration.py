@@ -1,5 +1,4 @@
 from calibration import ModelCalibrator
-import matplotlib.pyplot as plt
 
 def main():
     """
