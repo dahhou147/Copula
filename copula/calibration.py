@@ -1,16 +1,15 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from scipy.optimize import minimize
-from datetime import datetime, timedelta
+from datetime import datetime
 from pricing_model import EuropeanOptionPricing
 
 class ModelCalibrator:
     """Classe permettant de calibrer les paramètres d'un modèle de pricing d'options
     à partir de données de marché pour un ticker spécifique"""
     
-    def __init__(self, ticker):
+    def __init__(self, ticker): 
         """
         Initialise le calibrateur avec un ticker spécifique
         
@@ -45,18 +44,10 @@ class ModelCalibrator:
         self.historical_volatility = log_returns.std() * np.sqrt(252)  # Annualisation
         
         # Récupération du taux de dividende
-        try:
-            self.dividend_yield = stock.info.get('dividendYield', 0.0)
-            if self.dividend_yield is None:
-                self.dividend_yield = 0.0
-        except:
-            self.dividend_yield = 0.0
+        self.dividend_yield = stock.info.get('dividendYield', 0.0)
         
-        # Récupération du taux sans risque (approximation)
-        # Dans une application réelle, utilisez une API pour obtenir les taux du Trésor
-        self.risk_free_rate = 0.03  # Valeur par défaut
+        self.risk_free_rate = 0.03  
         
-        # Récupération de la chaîne d'options
         self.option_chain = stock.option_chain
         self.expiry_dates = stock.options
         
