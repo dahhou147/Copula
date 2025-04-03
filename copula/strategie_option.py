@@ -1,10 +1,4 @@
-import pandas as pd 
 import numpy as np
-import matplotlib.pyplot as plt 
-import scipy.stats as ss
-import scipy.optimize as so
-
-
 def capital_protected_strategie(portfolio, call_option, strike_price, rf, maturity):
     """ the portfolio is composed of indexs and we have a call option on the index and olbligation with strike price, rf is the risk free rate"""
     N=1000
