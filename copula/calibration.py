@@ -32,18 +32,14 @@ class ModelCalibrator:
         Args:
             period (str): Période pour les données historiques (ex: '1y', '6mo')
         """
-        # Récupération des données de l'action
         stock = yf.Ticker(self.ticker)
         self.stock_data = stock.history(period=period)
         
-        # Prix spot actuel
         self.spot_price = self.stock_data['Close'].iloc[-1]
         
-        # Calcul de la volatilité historique
         log_returns = np.log(self.stock_data['Close'] / self.stock_data['Close'].shift(1))
         self.historical_volatility = log_returns.std() * np.sqrt(252)  # Annualisation
         
-        # Récupération du taux de dividende
         self.dividend_yield = stock.info.get('dividendYield', 0.0)
         
         self.risk_free_rate = 0.03  
@@ -74,8 +70,8 @@ class ModelCalibrator:
         try:
             options = self.option_chain(expiry_date)
             return options.calls, options.puts
-        except:
-            print(f"Aucune option disponible pour la date {expiry_date}")
+        except Exception as e:
+            print(f"Aucune option disponible pour la date {expiry_date}: {e}")
             return None, None
     
     def calculate_time_to_maturity(self, expiry_date):
@@ -114,13 +110,10 @@ class ModelCalibrator:
         if options_df is None:
             return None, None
         
-        # Filtrer les options avec suffisamment de liquidité
         options_df = options_df[options_df['volume'] > 10]
         
-        # Calcul du temps jusqu'à l'échéance
         maturity = self.calculate_time_to_maturity(expiry_date)
         
-        # Initialisation du modèle de pricing
         model = EuropeanOptionPricing(
             S0=self.spot_price,
             strike_price=100,  # Sera mis à jour
@@ -196,19 +189,16 @@ class ModelCalibrator:
             print("Pas assez de données pour calibrer le modèle")
             return None
         
-        # Filtrer les options avec suffisamment de liquidité
         options_df = options_df[options_df['volume'] > 10]
         
-        # Calcul du temps jusqu'à l'échéance
         maturity = self.calculate_time_to_maturity(expiry_date)
         
-        # Fonction à minimiser (erreur quadratique moyenne)
         def objective_function(params):
             sigma = params[0]
             
             model = EuropeanOptionPricing(
                 S0=self.spot_price,
-                strike_price=100,  # Sera mis à jour pour chaque option
+                strike_price=100,  
                 maturity=maturity,
                 sigma=sigma,
                 r=self.risk_free_rate,
@@ -220,10 +210,8 @@ class ModelCalibrator:
                 strike = row['strike']
                 market_price = row['lastPrice']
                 
-                # Mise à jour du prix d'exercice
                 model.K = strike
                 
-                # Calcul du prix théorique
                 if option_type == 'call':
                     model_price = model.price_call()
                 else:
@@ -235,7 +223,6 @@ class ModelCalibrator:
             
             return total_error
         
-        # Optimisation des paramètres
         initial_params = [self.historical_volatility]
         bounds = [(0.01, 2.0)]  # Contraintes sur la volatilité
         
@@ -244,7 +231,6 @@ class ModelCalibrator:
         if result.success:
             calibrated_sigma = result.x[0]
             
-            # Résumé des paramètres calibrés
             calibrated_params = {
                 'S0': self.spot_price,
                 'sigma': calibrated_sigma,
@@ -264,25 +250,18 @@ class ModelCalibrator:
 
 # Exemple d'utilisation
 if __name__ == "__main__":
-    # Initialisation du calibrateur avec un ticker
     calibrator = ModelCalibrator("AAPL")
     
-    # Récupération des données de marché
     calibrator.fetch_market_data()
     
-    # Si des dates d'expiration sont disponibles
     if calibrator.expiry_dates and len(calibrator.expiry_dates) > 0:
-        # Choisir la première date d'expiration
         expiry = calibrator.expiry_dates[0]
         
-        # Afficher le smile de volatilité
         calibrator.plot_volatility_smile(expiry, option_type='call')
         
-        # Calibrer le modèle
         params = calibrator.calibrate_model(expiry, option_type='call')
         
         if params:
-            # Créer un modèle avec les paramètres calibrés
             model = EuropeanOptionPricing(
                 S0=params['S0'],
                 strike_price=params['S0'],  # ATM option
@@ -292,5 +271,4 @@ if __name__ == "__main__":
                 dividend=params['q']
             )
             
-            # Afficher le prix de l'option
             print(f"Prix de l'option call ATM: {model.price_call():.2f}") 
