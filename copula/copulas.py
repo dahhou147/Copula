@@ -27,6 +27,7 @@ def Normalizing(U: np.ndarray) -> np.ndarray:
     delta_inv = np.linalg.inv(delta)
     return delta_inv @ U @ delta_inv
 
+
 def matrix_to_sdp(U: np.ndarray) -> np.ndarray:
     """Takes a matrix and returns its semi-definite positive (SDP) version."""
     eig_values, eig_vectors = np.linalg.eig(U)

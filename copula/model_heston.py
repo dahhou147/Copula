@@ -5,7 +5,31 @@ import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
 
- 
+def calibrate_heston(S, V, dt):
+    returns = np.log(S[1:] / S[:-1])
+    
+    mean_return = np.mean(returns) / dt
+    var_return = np.var(returns) / dt
+    
+    # Estimate kappa (mean reversion speed)
+    kappa = -np.corrcoef(V[1:], V[:-1])[0,1] / dt
+    
+    # Estimate theta (long-run variance)
+    theta = np.mean(V)
+    
+    # Estimate vol_vol (volatility of variance)
+    vol_vol = np.std(np.diff(V)) / np.sqrt(dt)
+    
+    # Estimate correlation
+    rho = np.corrcoef(returns, np.diff(V))[0,1]
+    
+    return {
+        'kappa': kappa,
+        'theta': theta, 
+        'vol_vol': vol_vol,
+        'rho': rho,
+        'mu': mean_return
+    }
 @dataclass
 class parametre:
     mu :float
@@ -61,19 +85,3 @@ if __name__=="__main__":
     V_t, S_t = heston_model.generate_paths()
     plt.plot(S_t)
     plt.show()
-# %%
-
-class CalibHeston():
-    def __init__(self,data):
-        self.data = data
-        self.theta = ""
-        self.kappa = ""
-        self.rho = ""
-        self.k = ""
-        pass
-    
-    def mle(self):
-        pass
-    def moment(self):
-        pass
-
