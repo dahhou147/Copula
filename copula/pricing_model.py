@@ -25,7 +25,7 @@ def geometric_brownian_motion(S0, mu, sigma, N, T, M):
     return t, S
 
 
-class EuropeanOptionSmileVol:
+class EuropeanOptions:
     def __init__(
         self,
         S0: float,
@@ -209,7 +209,7 @@ if __name__ == "__main__":
         "N": 252,
         "M": 1000,
     }
-    option = EuropeanOptionSmileVol(**params)
+    option = EuropeanOptions(**params)
     pnl = option.delta_hedging("call")
     plt.plot(np.mean(pnl, axis=1))
     plt.title("Delta Hedging PnL")

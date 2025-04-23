@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 from scipy.optimize import minimize
 from datetime import datetime
-from pricing_model import EuropeanOptionSmileVol
+from pricing_model import EuropeanOptions
 
 
 class ModelCalibrator:
@@ -117,7 +117,7 @@ class ModelCalibrator:
 
         maturity = self.calculate_time_to_maturity(expiry_date)
 
-        model = EuropeanOptionSmileVol(
+        model = EuropeanOptions(
             S0=self.spot_price,
             strike_price=100,  # Sera mis à jour
             maturity=maturity,
@@ -199,7 +199,7 @@ class ModelCalibrator:
         def objective_function(params):
             sigma = params[0]
 
-            model = EuropeanOptionSmileVol(
+            model = EuropeanOptions(
                 S0=self.spot_price,
                 strike_price=100,
                 maturity=maturity,
@@ -266,7 +266,7 @@ if __name__ == "__main__":
         params = calibrator.calibrate_model(expiry, option_type="call")
 
         if params:
-            model = EuropeanOptionSmileVol(
+            model = EuropeanOptions(
                 S0=params["S0"],
                 strike_price=params["S0"],  # ATM option
                 maturity=params["T"],
