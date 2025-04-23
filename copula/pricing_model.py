@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import scipy.stats as ss
 import scipy.optimize as so
@@ -31,6 +32,7 @@ class EuropeanOptionSmileVol:
         strike_price: float,
         maturity: float,
         sigma: float,
+        mu: float,
         r: float,
         dividend: float = 0.0,
         N: int = 252,
@@ -174,7 +176,6 @@ class EuropeanOptionSmileVol:
             )
             cash_position = option_value_old - delta_old * S0
             portfolio_value = delta_old * S0 + cash_position
-
             for j in range(1, self.N):
                 St = self.S[j, i]
                 tau = self.T - j * dt
@@ -194,6 +195,8 @@ class EuropeanOptionSmileVol:
         return pnl
 
 
+
+#%%
 if __name__ == "__main__":
     params = {
         "S0": 100,
@@ -201,19 +204,24 @@ if __name__ == "__main__":
         "maturity": 1,
         "sigma": 0.2,
         "r": 0.05,
+        "mu": 0.1,
         "dividend": 0.0,
         "N": 252,
         "M": 1000,
     }
     option = EuropeanOptionSmileVol(**params)
+    pnl = option.delta_hedging("call")
+    plt.plot(np.mean(pnl, axis=1))
+    plt.title("Delta Hedging PnL")
+    #print(f"Call price: {option.price_call():.2f}")
 
-    print(f"Call price: {option.price_call():.2f}")
+    #market_price = 10.50
+    #iv = option.implied_volatility(option.K, market_price, "call")
+    #print(f"Implied volatility: {iv:.2%}")
+    #strikes = np.array([90, 100, 110])
+    #market_prices = np.array([15.0, 10.5, 7.5])
+    #smile = option.volatility_smile(strikes, market_prices)
+    #print("Volatility smile:", np.round(smile, 4))
+    #print(option.price_call())
 
-    market_price = 10.50
-    iv = option.implied_volatility(option.K, market_price, "call")
-    print(f"Implied volatility: {iv:.2%}")
-    strikes = np.array([90, 100, 110])
-    market_prices = np.array([15.0, 10.5, 7.5])
-    smile = option.volatility_smile(strikes, market_prices)
-    print("Volatility smile:", np.round(smile, 4))
-    print(option.price_call())
+# %%
