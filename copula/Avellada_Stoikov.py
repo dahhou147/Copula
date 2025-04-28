@@ -79,23 +79,24 @@ def simulate_trading(S_0, N, T, sigma, gamma, k, lambda_ask, lambda_bid):
     portfolio_value = cash + q * S
     return S, q, cash, portfolio_value, bid, ask
 
+if __name__ == "__main__":
+    # Parameters
+    S_0 = 100
+    N = 1000
+    T = 1
+    sigma = 0.2
+    gamma = 0.1
+    k = 1.5
+    lambda_ask = 1
+    lambda_bid = 1
 
-S_0 = 100
-N = 1000
-T = 1
-sigma = 0.2
-gamma = 0.1
-k = 1.5
-lambda_ask = 1
-lambda_bid = 1
+    S, q, cash, portfolio_value, bid, ask = simulate_trading(
+        S_0, N, T, sigma, gamma, k, lambda_ask, lambda_bid
+    )
 
-S, q, cash, portfolio_value, bid, ask = simulate_trading(
-    S_0, N, T, sigma, gamma, k, lambda_ask, lambda_bid
-)
-
-plt.figure(figsize=(8, 7))
-plt.plot(S, label="Mid Price")
-plt.plot(ask, label="Ask Price", linestyle="--")
-plt.plot(bid, label="Bid Price", linestyle="--")
-plt.legend()
-plt.show()
+    plt.figure(figsize=(8, 7))
+    plt.plot(S, label="Mid Price")
+    plt.plot(ask, label="Ask Price", linestyle="--")
+    plt.plot(bid, label="Bid Price", linestyle="--")
+    plt.legend()
+    plt.show()
