@@ -1,8 +1,8 @@
-#%%
-import numpy as np
-import scipy.stats as ss
-import scipy.optimize as so
+# %%
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.optimize as so
+import scipy.stats as ss
 
 
 def geometric_brownian_motion(S0, mu, sigma, N, T, M):
@@ -57,6 +57,7 @@ class EuropeanOptions:
         self.r = r
         self.q = dividend
         self.N = N
+        self.mu = mu
         self.M = M
         self.S = None
 
@@ -82,7 +83,9 @@ class EuropeanOptions:
             -self.q * self.T
         ) * ss.norm.cdf(-d1)
 
-    def implied_volatility(self, strike, market_price: float, option_type: str = "call"):
+    def implied_volatility(
+        self, strike, market_price: float, option_type: str = "call"
+    ):
         """Calculate implied volatility using Newton-Raphson method.
 
         Args:
@@ -94,7 +97,9 @@ class EuropeanOptions:
         def f(sigma):
             self.sigma = sigma
             self.K = strike
-            return (self.price_call() if option_type == "call" else self.price_put()) - market_price
+            return (
+                self.price_call() if option_type == "call" else self.price_put()
+            ) - market_price
 
         try:
             return so.newton(f, 0.2, maxiter=50)
@@ -125,7 +130,7 @@ class EuropeanOptions:
 
     def generate_paths(self):
         """Generate paths for the underlying asset."""
-        _, self.S = geometric_brownian_motion(self.S0, self.r, self.sigma, self.N, self.T, self.M)
+        self.S = self.generate_path_girsanov()
         return self.S
 
     def delta(self, S, tau, option_type="call"):
@@ -172,7 +177,9 @@ class EuropeanOptions:
             tau = self.T
             delta_old = self.delta(S0, tau, option_type)
             option_value_old = (
-                self.call_in_time(S0, tau) if option_type == "call" else self.put_in_time(S0, tau)
+                self.call_in_time(S0, tau)
+                if option_type == "call"
+                else self.put_in_time(S0, tau)
             )
             cash_position = option_value_old - delta_old * S0
             portfolio_value = delta_old * S0 + cash_position
@@ -194,9 +201,36 @@ class EuropeanOptions:
 
         return pnl
 
+    def generate_path_girsanov(self):
+        """Generate paths for the underlying asset under the risk-neutral measure using Girsanov theorem.
+
+        This method implements the change of measure from the real-world measure (with drift mu)
+        to the risk-neutral measure (with drift r) using Girsanov's theorem.
+
+        Returns:
+            np.ndarray: Matrix of simulated paths under the risk-neutral measure
+        """
+        dt = self.T / self.N
+        t = np.linspace(0, self.T, self.N)
+
+        theta = (self.mu - self.r) / self.sigma
+
+        dW = ss.norm.rvs(scale=np.sqrt(dt), size=(self.N - 1, self.M))
+
+        dW_tilde = dW - theta * np.sqrt(dt)
+
+        W_tilde = np.cumsum(dW_tilde, axis=0)
+        W_tilde = np.vstack([np.zeros(self.M), W_tilde])
+
+        self.S = self.S0 * np.exp(
+            (self.r - 0.5 * self.sigma**2) * t[:, None] + self.sigma * W_tilde
+        )
+
+        return self.S
 
 
-#%%
+# %%
+# %%
 if __name__ == "__main__":
     params = {
         "S0": 100,
@@ -207,21 +241,34 @@ if __name__ == "__main__":
         "mu": 0.1,
         "dividend": 0.0,
         "N": 252,
-        "M": 1000,
+        "M": 100,
     }
     option = EuropeanOptions(**params)
+
+    # Plot delta hedging PnL
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
     pnl = option.delta_hedging("call")
     plt.plot(np.mean(pnl, axis=1))
     plt.title("Delta Hedging PnL")
-    #print(f"Call price: {option.price_call():.2f}")
+    plt.xlabel("Time Steps")
+    plt.ylabel("PnL")
+    plt.grid(True)
 
-    #market_price = 10.50
-    #iv = option.implied_volatility(option.K, market_price, "call")
-    #print(f"Implied volatility: {iv:.2%}")
-    #strikes = np.array([90, 100, 110])
-    #market_prices = np.array([15.0, 10.5, 7.5])
-    #smile = option.volatility_smile(strikes, market_prices)
-    #print("Volatility smile:", np.round(smile, 4))
-    #print(option.price_call())
+    # Plot simulated paths
+    plt.subplot(1, 2, 2)
+    simules = option.generate_path_girsanov()
+    plt.plot(simules)
+    plt.title("Simulated Paths under Risk-Neutral Measure")
+    plt.xlabel("Time Steps")
+    plt.ylabel("Asset Price")
+    plt.grid(True)
+
+    # Print option prices
+    print(f"Call price (Black-Scholes): {option.price_call():.4f}")
+    print(f"Put price (Black-Scholes): {option.price_put():.4f}")
+
+    plt.tight_layout()
+    plt.show()
 
 # %%
