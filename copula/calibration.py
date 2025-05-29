@@ -139,7 +139,7 @@ class ModelCalibrator:
                 strikes.append(strike)
                 implied_vols.append(iv)
 
-        return np.array(strikes), np.array(implied_vols)
+        return np.array(strikes).sort(), np.array(implied_vols).sort()
 
     def plot_volatility_smile(self, expiry_date):
         """
@@ -166,7 +166,8 @@ class ModelCalibrator:
         plt.ylabel("Implied Volatility (%)")
         plt.title(f"Volatility Smile for {self.ticker} - {expiry_date}")
         plt.grid(True)
-        plt.savefig(f"smile_volatility_{self.ticker}_{expiry_date}.png")
+        #plt.savefig(f"smile_volatility_{self.ticker}_{expiry_date}.png")
+        plt.show()
 
     def calibrate_model(self, expiry_date, option_type="call"):
         """
