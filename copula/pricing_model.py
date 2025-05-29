@@ -80,44 +80,36 @@ class VolatilitySmile:
     def __init__(self, pricer: BlackScholesPricer):
         self.pricer = pricer
 
-    def implied_volatility(
-        self, strike: float, market_price: float, option_type: str = "call"
-    ):
+    def implied_volatility(self, strike: float, market_price: float):
         """Calculate implied volatility using Newton-Raphson method."""
 
         def f(sigma):
             self.pricer.sigma = sigma
             self.pricer.K = strike
-            return (
-                self.pricer.price_call()
-                if option_type == "call"
-                else self.pricer.price_put()
-            ) - market_price
+            return self.pricer.price_call() - market_price
 
         try:
             return so.newton(f, 0.2, maxiter=50)
         except RuntimeError:
             return np.nan
 
-    def volatility_smile(
-        self, strikes: np.ndarray, market_prices: np.ndarray, option_type: str = "call"
-    ):
+    def volatility_smile(self, strikes: np.ndarray, market_prices: np.ndarray):
         """Calculate the implied volatility curve."""
         return np.array(
             [
-                self.implied_volatility(strike, price, option_type)
+                self.implied_volatility(strike, price)
                 for strike, price in zip(strikes, market_prices)
             ]
         )
 
-    def plot_smile(self, strikes, market_prices, option_type="call"):
+    def plot_smile(self, strikes, market_prices):
         """Plot the implied volatility curve."""
-        smile = self.volatility_smile(strikes, market_prices, option_type)
+        smile = self.volatility_smile(strikes, market_prices)
         plt.figure(figsize=(10, 6))
         plt.plot(strikes, smile * 100, "o-")
         plt.xlabel("strike price")
         plt.ylabel("implied volatility (%)")
-        plt.title("Smile volatility")
+        plt.title("Volatility Smile")
         plt.grid(True)
         return plt.gcf()
 
