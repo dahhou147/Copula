@@ -37,7 +37,6 @@ def setup_simulation(params: Dict[str, float], N: int = DAILY_STEPS, M: int = NU
     if missing_params:
         raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
 
-    # Create Girsanov simulator
     simulator = GirsanovSimulator(
         S0=params['S0'],
         mu=params['mu'],
