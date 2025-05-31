@@ -59,7 +59,7 @@ portfolio.hedge_portfolio(option_type="call")
 ## Installation
 
 ```bash
-pip install numpy scipy matplotlib
+pip install -r requirements.txt
 ```
 
 ## Dependencies
