@@ -1,58 +1,58 @@
 # Options Hedging Strategy
 
-Ce projet implémente une stratégie de couverture d'options avancée utilisant le modèle Black-Scholes. La stratégie vise à neutraliser les risques delta, gamma et vega d'un portefeuille d'options.
+This project implements an advanced options hedging strategy using the Black-Scholes model. The strategy aims to neutralize delta, gamma, and vega risks in an options portfolio.
 
-## Fonctionnalités
+## Features
 
-- **Prix d'options** : Implémentation du modèle Black-Scholes pour le pricing d'options
-- **Calcul des Grecques** : Delta, Gamma, Vega, Theta
-- **Couverture multi-grecques** : Neutralisation simultanée de delta, gamma et vega
-- **Simulation Monte Carlo** : Génération de chemins de prix sous la mesure risque-neutre
-- **Analyse de performance** : Métriques de performance et visualisations
+- **Option Pricing**: Implementation of the Black-Scholes model for option pricing
+- **Greeks Calculation**: Delta, Gamma, Vega, Theta
+- **Multi-Greek Hedging**: Simultaneous neutralization of delta, gamma, and vega
+- **Monte Carlo Simulation**: Price path generation under risk-neutral measure
+- **Performance Analysis**: Performance metrics and visualizations
 
-## Structure du Code
+## Code Structure
 
-### Classes Principales
+### Main Classes
 
 1. **BlackScholesPricer**
-   - Pricing d'options européennes
-   - Calcul des paramètres d1 et d2
-   - Support des options call et put
+   - European option pricing
+   - d1 and d2 parameters calculation
+   - Support for call and put options
 
 2. **Greeks**
-   - Calcul des grecques (delta, gamma, vega, theta)
-   - Support des options call et put
+   - Greeks calculation (delta, gamma, vega, theta)
+   - Support for call and put options
 
 3. **ConstructPortfolio**
-   - Construction d'un portefeuille de couverture
-   - Neutralisation des risques delta, gamma et vega
-   - Gestion dynamique du portefeuille
+   - Hedging portfolio construction
+   - Delta, gamma, and vega risk neutralization
+   - Dynamic portfolio management
 
 4. **GirsanovSimulator**
-   - Simulation de chemins de prix sous la mesure risque-neutre
-   - Utilisation du théorème de Girsanov
+   - Price path simulation under risk-neutral measure
+   - Implementation of Girsanov's theorem
 
-### Exemple d'Utilisation
+### Usage Example
 
 ```python
-# Paramètres de marché
-S0 = 100.0  # Prix initial
-K = 100.0   # Strike
-T = 1.0     # Maturité
-r = 0.05    # Taux sans risque
-sigma = 0.2 # Volatilité
-N = 252     # Nombre de pas de temps
-M = 100     # Nombre de simulations
+# Market parameters
+S0 = 100.0  # Initial price
+K = 100.0   # Strike price
+T = 1.0     # Time to maturity
+r = 0.05    # Risk-free rate
+sigma = 0.2 # Volatility
+N = 252     # Number of time steps
+M = 100     # Number of simulations
 
-# Création des chemins de prix
+# Create price paths
 simulator = GirsanovSimulator(S0, mu, r, sigma, N, T, M)
 paths = simulator.generate_paths()
 
-# Création du portefeuille de couverture
+# Create hedging portfolio
 pricer = BlackScholesPricer(S0, K, T, sigma, r)
 portfolio = ConstructPortfolio(pricer, paths, N, T, K*0.9, K*1.1)
 
-# Exécution de la couverture
+# Execute hedging
 portfolio.hedge_portfolio(option_type="call")
 ```
 
@@ -62,40 +62,40 @@ portfolio.hedge_portfolio(option_type="call")
 pip install numpy scipy matplotlib
 ```
 
-## Dépendances
+## Dependencies
 
 - NumPy
 - SciPy
 - Matplotlib
 
-## Fonctionnalités Avancées
+## Advanced Features
 
-1. **Couverture Multi-grecques**
-   - Utilisation de deux options de couverture avec des strikes différents
-   - Position sur le sous-jacent pour la neutralisation complète
+1. **Multi-Greek Hedging**
+   - Use of two hedging options with different strikes
+   - Underlying position for complete neutralization
 
-2. **Gestion du Risque**
-   - Régularisation des coefficients pour éviter les positions extrêmes
-   - Gestion des cas d'erreur numériques
+2. **Risk Management**
+   - Coefficient regularization to avoid extreme positions
+   - Numerical error handling
 
-3. **Analyse de Performance**
-   - Distribution du PnL
-   - Évolution de la valeur du portefeuille
-   - Position en cash
-   - Métriques de performance (Sharpe ratio, etc.)
+3. **Performance Analysis**
+   - PnL distribution
+   - Portfolio value evolution
+   - Cash position tracking
+   - Performance metrics (Sharpe ratio, etc.)
 
-## Améliorations Futures
+## Future Improvements
 
-- [ ] Ajout des coûts de transaction
-- [ ] Support des options américaines
-- [ ] Implémentation d'autres modèles de volatilité
-- [ ] Optimisation des paramètres de couverture
-- [ ] Backtesting sur données historiques
+- [ ] Add transaction costs
+- [ ] Support for American options
+- [ ] Implementation of alternative volatility models
+- [ ] Hedging parameter optimization
+- [ ] Historical data backtesting
 
-## Auteur
+## Author
 
-[Votre nom]
+[Your name]
 
-## Licence
+## License
 
-Ce projet est sous licence MIT.
+This project is licensed under the MIT License.
