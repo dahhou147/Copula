@@ -1,125 +1,101 @@
-# Copula
+# Options Hedging Strategy
 
-Copula est une bibliothèque conçue pour simuler et calibrer des modèles de tarification pour diverses options (call, put, barrière, butterfly).
+Ce projet implémente une stratégie de couverture d'options avancée utilisant le modèle Black-Scholes. La stratégie vise à neutraliser les risques delta, gamma et vega d'un portefeuille d'options.
+
+## Fonctionnalités
+
+- **Prix d'options** : Implémentation du modèle Black-Scholes pour le pricing d'options
+- **Calcul des Grecques** : Delta, Gamma, Vega, Theta
+- **Couverture multi-grecques** : Neutralisation simultanée de delta, gamma et vega
+- **Simulation Monte Carlo** : Génération de chemins de prix sous la mesure risque-neutre
+- **Analyse de performance** : Métriques de performance et visualisations
+
+## Structure du Code
+
+### Classes Principales
+
+1. **BlackScholesPricer**
+   - Pricing d'options européennes
+   - Calcul des paramètres d1 et d2
+   - Support des options call et put
+
+2. **Greeks**
+   - Calcul des grecques (delta, gamma, vega, theta)
+   - Support des options call et put
+
+3. **ConstructPortfolio**
+   - Construction d'un portefeuille de couverture
+   - Neutralisation des risques delta, gamma et vega
+   - Gestion dynamique du portefeuille
+
+4. **GirsanovSimulator**
+   - Simulation de chemins de prix sous la mesure risque-neutre
+   - Utilisation du théorème de Girsanov
+
+### Exemple d'Utilisation
+
+```python
+# Paramètres de marché
+S0 = 100.0  # Prix initial
+K = 100.0   # Strike
+T = 1.0     # Maturité
+r = 0.05    # Taux sans risque
+sigma = 0.2 # Volatilité
+N = 252     # Nombre de pas de temps
+M = 100     # Nombre de simulations
+
+# Création des chemins de prix
+simulator = GirsanovSimulator(S0, mu, r, sigma, N, T, M)
+paths = simulator.generate_paths()
+
+# Création du portefeuille de couverture
+pricer = BlackScholesPricer(S0, K, T, sigma, r)
+portfolio = ConstructPortfolio(pricer, paths, N, T, K*0.9, K*1.1)
+
+# Exécution de la couverture
+portfolio.hedge_portfolio(option_type="call")
+```
 
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+pip install numpy scipy matplotlib
 ```
 
-## Fonctionnalités
+## Dépendances
 
-- Tarification d'options européennes (call/put) avec le modèle Black-Scholes
-- Calcul des grecques (delta)
-- Calcul de volatilité implicite
-- Construction de smiles de volatilité
-- Simulation de mouvement brownien géométrique
-- Simulation de stratégies de couverture delta
-- Calibration automatique des paramètres du modèle à partir de données de marché réelles
-- Implémentation du modèle de market making Avellaneda-Stoikov (2008)
-- Visualisation des résultats
+- NumPy
+- SciPy
+- Matplotlib
 
-## Exemples d'utilisation
+## Fonctionnalités Avancées
 
-### Tarification d'une option européenne
+1. **Couverture Multi-grecques**
+   - Utilisation de deux options de couverture avec des strikes différents
+   - Position sur le sous-jacent pour la neutralisation complète
 
-```python
-from pricing_model import EuropeanOptionPricing
+2. **Gestion du Risque**
+   - Régularisation des coefficients pour éviter les positions extrêmes
+   - Gestion des cas d'erreur numériques
 
-# Configuration des paramètres
-params = {
-    'S0': 100,            # Prix spot
-    'strike_price': 100,  # Prix d'exercice
-    'maturity': 1,        # Maturité en années
-    'sigma': 0.2,         # Volatilité
-    'r': 0.05,            # Taux sans risque
-    'dividend': 0.0       # Rendement de dividende
-}
+3. **Analyse de Performance**
+   - Distribution du PnL
+   - Évolution de la valeur du portefeuille
+   - Position en cash
+   - Métriques de performance (Sharpe ratio, etc.)
 
-# Création de l'objet option
-option = EuropeanOptionPricing(**params)
+## Améliorations Futures
 
-# Calcul du prix de l'option call
-prix_call = option.price_call()
-print(f"Prix de l'option call: {prix_call:.2f}")
-```
+- [ ] Ajout des coûts de transaction
+- [ ] Support des options américaines
+- [ ] Implémentation d'autres modèles de volatilité
+- [ ] Optimisation des paramètres de couverture
+- [ ] Backtesting sur données historiques
 
-### Calibration à partir de données de marché
+## Auteur
 
-```python
-from calibration import ModelCalibrator
-
-# Initialisation du calibrateur avec un ticker boursier
-calibrator = ModelCalibrator("AAPL")
-
-# Récupération des données de marché
-calibrator.fetch_market_data()
-
-# Si des dates d'expiration sont disponibles
-if calibrator.expiry_dates and len(calibrator.expiry_dates) > 0:
-    # Choisir une date d'expiration
-    expiry = calibrator.expiry_dates[0]
-    
-    # Afficher le smile de volatilité
-    calibrator.plot_volatility_smile(expiry, option_type='call')
-    
-    # Calibrer le modèle
-    params = calibrator.calibrate_model(expiry, option_type='call')
-```
-
-### Utilisation de l'outil de calibration interactif
-
-Pour calibrer facilement le modèle avec une interface interactive:
-
-```bash
-python example_calibration.py
-```
-
-Suivez les instructions à l'écran pour:
-1. Entrer le symbole de l'action (ex: AAPL, MSFT, GOOGL)
-2. Sélectionner une date d'expiration parmi celles disponibles
-3. Choisir le type d'option (call ou put)
-
-L'outil affichera ensuite le smile de volatilité et les paramètres calibrés.
-
-### Market Making avec le modèle Avellaneda-Stoikov
-
-Pour simuler une stratégie de market making basée sur le modèle Avellaneda-Stoikov:
-
-```bash
-python example_market_making.py
-```
-
-Paramètres configurables:
-- `--initial_price` : Prix initial de l'actif
-- `--volatility` : Volatilité du prix de l'actif
-- `--risk_aversion` : Paramètre d'aversion au risque (gamma)
-- `--order_book_liquidity` : Paramètre de liquidité du carnet d'ordres (kappa)
-- `--n_simulations` : Nombre de simulations à exécuter
-
-```python
-from market_making import AvellanedaStoikovMarketMaker
-
-# Initialiser le market maker
-mm = AvellanedaStoikovMarketMaker(
-    initial_price=100.0,
-    volatility=0.2,
-    risk_aversion=0.1,
-    order_book_liquidity=1.5
-)
-
-# Simuler une session de trading
-mm.simulate_trading_session(n_steps=252, seed=42)
-
-# Afficher les résultats
-mm.plot_results()
-```
-
-Le modèle Avellaneda-Stoikov résout deux problèmes principaux des market makers:
-1. La gestion du risque d'inventaire
-2. La détermination du spread optimal entre prix d'achat et de vente
+[Votre nom]
 
 ## Licence
 
-MIT
+Ce projet est sous licence MIT.

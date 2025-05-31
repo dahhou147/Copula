@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, NoReturn
+from typing import Optional, Dict, NoReturn
 import sys
 
 import matplotlib.pyplot as plt
@@ -9,8 +9,17 @@ from calibration import ModelCalibrator
 from pricing_model import BlackScholesPricer, GirsanovSimulator, DeltaHedger
 
 
+# TODO:
+# - verifier que on prend bien les puts et calls
+# - verifier que on prend bien les bonnes expirations
+# - verifier que on prend bien les bonnes volatilites implicites
+# - verifier que on prend bien les bonnes taux sans risque
+# - verifier que on prend bien les bonnes dividendes
+# - verifier que on prend bien les bonnes volatilites
+
+
 # Constants
-DAILY_STEPS = 252 
+DAILY_STEPS = 252
 NUM_PATHS = 1000
 MIN_VOLUME = 10
 PLOT_FIGSIZE = (10, 6)
@@ -32,29 +41,29 @@ def setup_simulation(params: Dict[str, float], N: int = DAILY_STEPS, M: int = NU
     Raises:
         ValueError: If required parameters are missing
     """
-    required_params = ['S0', 'mu', 'r', 'sigma', 'T', 'q']
+    required_params = ["S0", "mu", "r", "sigma", "T", "q"]
     missing_params = [param for param in required_params if param not in params]
     if missing_params:
         raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
 
     simulator = GirsanovSimulator(
-        S0=params['S0'],
-        mu=params['mu'],
-        r=params['r'],
-        sigma=params['sigma'],
+        S0=params["S0"],
+        mu=params["mu"],
+        r=params["r"],
+        sigma=params["sigma"],
         N=N,
-        T=params['T'],
-        M=M
+        T=params["T"],
+        M=M,
     )
 
     # Create pricer
     pricer = BlackScholesPricer(
-        S0=params['S0'],
-        K=params['S0'],  # ATM option
-        T=params['T'],
-        sigma=params['sigma'],
-        r=params['r'],
-        q=params['q']
+        S0=params["S0"],
+        K=params["S0"],  # ATM option
+        T=params["T"],
+        sigma=params["sigma"],
+        r=params["r"],
+        q=params["q"],
     )
 
     return simulator, pricer
@@ -72,17 +81,17 @@ def plot_pnl_distribution(final_pnl: np.ndarray, ticker: str, expiry: str) -> No
     try:
         plt.figure(figsize=PLOT_FIGSIZE)
         sns.histplot(final_pnl, bins=50, kde=True, stat="density")
-        sns.kdeplot(final_pnl, color='red')
+        sns.kdeplot(final_pnl, color="red")
         plt.title(f"P&L Distribution for {ticker} - {expiry}")
         plt.xlabel("P&L")
         plt.ylabel("Density")
         plt.grid(True)
-        
+
         filename = f"pnl_distribution_{ticker}_{expiry}.png"
         plt.savefig(filename)
         plt.close()
         print(f"P&L distribution plot saved as {filename}")
-    
+
     except Exception as e:
         print(f"Error plotting P&L distribution: {str(e)}")
 
@@ -98,14 +107,14 @@ def print_hedging_results(final_pnl: np.ndarray) -> None:
         mean_pnl = np.mean(final_pnl)
         std_pnl = np.std(final_pnl, ddof=1)
         var_95 = np.percentile(final_pnl, 5)
-        
+
         print("\nDelta hedging results:")
         print(f"Mean P&L: {mean_pnl:.2f}")
         print(f"P&L Standard Deviation: {std_pnl:.2f}")
         print(f"95% VaR: {var_95:.2f}")
         print(f"Maximum loss: {np.min(final_pnl):.2f}")
         print(f"Maximum profit: {np.max(final_pnl):.2f}")
-    
+
     except Exception as e:
         print(f"Error calculating hedging results: {str(e)}")
 
@@ -123,12 +132,12 @@ def get_user_input() -> tuple[str, str]:
     # Get ticker from user
     print("\nAvailable default tickers:", ", ".join(DEFAULT_TICKERS))
     ticker = input("Enter stock symbol (or press Enter for a list of defaults): ").strip().upper()
-    
+
     if not ticker:
         print("\nSelect a ticker:")
         for i, default_ticker in enumerate(DEFAULT_TICKERS, 1):
             print(f"{i}. {default_ticker}")
-        
+
         while True:
             try:
                 choice = int(input("\nEnter number (1-3): "))
@@ -138,11 +147,13 @@ def get_user_input() -> tuple[str, str]:
                 print("Invalid choice. Please try again.")
             except ValueError:
                 print("Please enter a number.")
-    
+
     return ticker
 
 
-def run_calibration(calibrator: ModelCalibrator) -> tuple[Optional[Dict[str, float]], Optional[str]]:
+def run_calibration(
+    calibrator: ModelCalibrator,
+) -> tuple[Optional[Dict[str, float]], Optional[str]]:
     """
     Run the calibration process.
 
@@ -203,12 +214,12 @@ def run_simulation(params: Dict[str, float], ticker: str, expiry: str) -> NoRetu
         paths = simulator.generate_paths()
 
         print("Performing delta hedging simulation...")
-        hedger = DeltaHedger(pricer, paths, DAILY_STEPS, params['T'])
+        hedger = DeltaHedger(pricer, paths, DAILY_STEPS, params["T"])
         pnl = hedger.hedge()
 
         final_pnl = pnl[-1, :]
         print_hedging_results(final_pnl)
-        
+
         print("\nPlotting P&L distribution...")
         plot_pnl_distribution(final_pnl, ticker, expiry)
 
