@@ -94,7 +94,7 @@ pip install numpy scipy matplotlib
 
 ## Author
 
-[Your name]
+Oussama Dahhou
 
 ## License
 
