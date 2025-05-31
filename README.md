@@ -95,7 +95,7 @@ pip install -r requirements.txt
 - [ ] Hedging parameter optimization
 - [ ] Historical data backtesting
 
-## references
+## References
 
 - John Hull's book on options, futures and other derivatives
 - Surface de volatilité, Peter TANKOV Paris Diderot University
