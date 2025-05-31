@@ -67,6 +67,9 @@ pip install -r requirements.txt
 - NumPy
 - SciPy
 - Matplotlib
+- yfinance
+- seaborn
+- dataclasses
 
 ## Advanced Features
 

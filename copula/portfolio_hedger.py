@@ -1,7 +1,6 @@
 #%%
 import numpy as np
-import pandas as pd
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from pricing_model import BlackScholesPricer, Greeks
 
 class OptionPosition:
