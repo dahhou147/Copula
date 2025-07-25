@@ -5,7 +5,7 @@ A Python library for modeling and simulating multivariate dependencies using cop
 ## Features
 
 - **Gaussian Copula**: Fit and sample from a Gaussian copula using empirical covariance.
-- **Student Copula**: Fit and sample from a Student-t copula using Kendall’s tau and maximum likelihood estimation for degrees of freedom.
+- **Student Copula**: Fit and sample from a Student-t copula using Kendall's tau and maximum likelihood estimation for degrees of freedom.
 - Utility functions for matrix manipulation, normalization, and correlation conversion.
 
 ## Installation
