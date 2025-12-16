@@ -271,15 +271,13 @@ class CDS:
         """
         results = self.portfolio.compute_portfolio_statistics()
         
-        # Formater les résultats pour correspondre à l'ancienne interface
         df_params = MertonModel_to_DataFrame()
         debts = df_params["debt"].to_numpy()
         
-        # Créer une matrice de valeurs d'actifs fictive pour compatibilité
-        # (pas vraiment utilisée dans la nouvelle approche)
+
         n_sims = self.portfolio.n_sims
         n_entities = len(self.tickers)
-        last_asset_values = np.random.randn(n_sims, n_entities)  # Dummy
+        last_asset_values = np.random.randn(n_sims, n_entities)  
         
         default_matrix = self.portfolio.simulate_gaussian_copula()
         
