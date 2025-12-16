@@ -1,4 +1,6 @@
+#%%
 from dataclasses import dataclass
+from abc import abstractmethod
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import ndtr
@@ -67,8 +69,11 @@ class StudentCopulaParametres:
     sigma: np.ndarray
     df: float
 
-
+# une méthide abstraite de copule
+# trouver les correlations entre les correlatios entre les variables suivant une loi multivariée
+#
 class Copula:
+    @abstractmethod
     def __init__(self, parametres) -> None:
         """
         Initializes a Copula object with the specified parameters.
@@ -142,3 +147,5 @@ if __name__ == "__main__":
     X = t.cdf(samples, df=3)
     studentcopula = StudentCopula().fit(X)
     studentcopula.rvs(1000)
+
+# %%
